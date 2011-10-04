@@ -16,5 +16,5 @@ events.each do |event|
 	event["start_date"] = Time::parse(event["start_date"])
 	event["end_date"] = Time::parse(event["end_date"])
 	puts event
-	calendar.make(:new => :event, at: calendar.events.end, with_properties: {:summary => event["summary"], :url => event["url"], :start_date => event["start_date"], :end_date => event["end_date"], :location => event["location"], :recurrence => "FREQ=WEEKLY", :description => event["notes"]})
+	# calendar.make(:new => :event, at: calendar.events.end, with_properties: {:summary => event["summary"], :url => event["url"], :start_date => event["start_date"], :end_date => event["end_date"], :location => event["location"], :recurrence => "FREQ=WEEKLY", :description => event["notes"]})
 end

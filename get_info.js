@@ -1,10 +1,10 @@
 String.prototype.trim = function() {
-	return this.replace(/^(\s\n)+|(\s\n)+$/g,"");
+	return this.replace(/^(\s|\n)+|(\s|\n)+$/g,"");
 };
 
 var url_prototype = 'http://vorlesungsverzeichnis.unibas.ch/vvo_show_Detail.cfm?clear=1&eobjectDetail=%id';
 var days = {Montag: 1, Dienstag: 2, Mittwoch: 3, Donnerstag: 4, Freitag: 5, Samstag: 6, Sonntag: 0};
-var calendars = ['Philosophie', 'Informatik'];
+var calendars = ['Philosophie', 'Informatik', {calendar: 'Außerfakultärer Bereich', pattern: '*'}];
 var i;
 
 var time_list = document.evaluate('//td[@class="tddetailbold" and text()="Zeit"]', document.documentElement, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null).iterateNext().nextSibling.childNodes;
@@ -19,7 +19,7 @@ for(i=0;i<time_list.length;i++) {
 		}
 	} else if(time_list[i].tagName.toLowerCase() === 'a') {
 		time_list[i].normalize();
-		times[counter] += " "+time_list[i].childNodes[0].nodeValue.trim();
+		times[counter] += " "+time_list[i].childNodes[0].nodeValue.trim().replace(/\s+/, ' ');
 	} else {
 		counter++;
 	}
@@ -30,10 +30,16 @@ var first_date = document.evaluate('//td[@class="tddetailbold" and text()="Begin
 first_date = new Date(parseInt(first_date[2], 10), parseInt(first_date[1], 10)-1, parseInt(first_date[0], 10));
 
 var modules = document.evaluate('//td[@class="tddetailbold" and text()="Module"]', document.documentElement, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null).iterateNext().nextSibling.textContent;
-var calendar = 'Außerfakultärer Bereich';
+var calendar = null;
 for(i=0;i<calendars.length;i++) {
-	if(modules.indexOf(calendars[i]) > -1) {
-		calendar = calendars[i];
+	var cal = calendars[i];
+	var pattern = calendars[i];
+	if(pattern.constructor !== String) {
+		cal = pattern.calendar;
+		pattern = pattern.pattern;
+	}
+	if(pattern === '*' || modules.indexOf(pattern) > -1) {
+		calendar = cal;
 		break;
 	}
 }
