@@ -2,7 +2,24 @@ String.prototype.trim = function() {
 	return this.replace(/^(\s|\n)+|(\s|\n)+$/g,"");
 };
 
-var url_prototype = 'http://vorlesungsverzeichnis.unibas.ch/vvo_show_Detail.cfm?clear=1&eobjectDetail=%id';
+function extractParam(paramVariants) {
+	paramVariants = [].slice.call(arguments);
+	var search = window.location.search;
+	var result = null;
+	for(var i=0;i<paramVariants.length;i++) {
+		var param = paramVariants[i]+'=';
+		if(search.indexOf(param) > -1) {
+			result = search.substr(search.indexOf(param)+param.length);
+			break;
+		}
+	}
+	if(result && result.indexOf('&') > -1) {
+		result = result.substr(0, result.indexOf('&'));
+	}
+	return result;
+}
+
+var url_prototype = 'http://vorlesungsverzeichnis.unibas.ch/vvo_show_Detail.cfm?clear=1&eobjectDetail=%id&PeID=%pe';
 var days = {Montag: 1, Dienstag: 2, Mittwoch: 3, Donnerstag: 4, Freitag: 5, Samstag: 6, Sonntag: 0};
 var calendars = ['Philosophie', 'Informatik', {calendar: 'Außerfakultärer Bereich', pattern: '*'}];
 var i;
@@ -45,16 +62,7 @@ for(i=0;i<calendars.length;i++) {
 }
 var title = document.evaluate('//div[@class="conttext"]/h2/text()', document.documentElement, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null).iterateNext().nodeValue.trim();
 title = title.substr(title.lastIndexOf(' ')+1);
-var id = window.location.search;
-if(id.indexOf('DID=') > -1) {
-	id = id.substr(id.indexOf('DID=')+4);
-} else {
-	id = id.substr(id.indexOf('eobjectDetail=')+14);
-}
-if(id.indexOf('&') > -1) {
-	id = id.substr(0, id.indexOf('&'));
-}
-url = url_prototype.replace(/%id/g, id);
+var url = url_prototype.replace(/%id/g, extractParam('DID', 'eobjectDetail')).replace(/%pe/g, extractParam('PeID'));
 
 var entries = [];
 var notes = "";
